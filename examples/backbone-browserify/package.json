@@ -1,0 +1,13 @@
+{
+  "name": "backbone-browserify",
+  "version": "0.0.0",
+  "description": "",
+  "main": "index.js",
+  "author": "",
+  "license": "BSD",
+  "dependencies": {
+    "backbone": "~1.1.0",
+    "jquery-browserify": "~1.8.1",
+    "underscore": "~1.5.2"
+  }
+}
