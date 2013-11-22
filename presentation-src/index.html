@@ -1,0 +1,532 @@
+<!doctype html>
+<html lang="en">
+
+    <head>
+        <meta charset="utf-8">
+
+        <title>Modules!</title>
+
+        <meta name="description" content="A framework for easily creating beautiful presentations using HTML">
+        <meta name="author" content="Hakim El Hattab">
+
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+        <link rel="stylesheet" href="css/reveal.min.css">
+        <link rel="stylesheet" href="css/theme/default.css" id="theme">
+
+        <!-- For syntax highlighting -->
+        <link rel="stylesheet" href="lib/css/zenburn.css">
+
+        <!-- If the query includes 'print-pdf', use the PDF print sheet -->
+        <script>
+            document.write( '<link rel="stylesheet" href="css/print/' + ( window.location.search.match( /print-pdf/gi ) ? 'pdf' : 'paper' ) + '.css" type="text/css" media="print">' );
+        </script>
+
+        <!--[if lt IE 9]>
+        <script src="lib/js/html5shiv.js"></script>
+        <![endif]-->
+    </head>
+
+    <body>
+
+        <div class="reveal">
+
+            <!-- Any section element inside of this container is displayed as a slide -->
+            <div class="slides">
+                <section>
+                    <h1>Front End Dependency Management</h1>
+                    <h3>Let's hug it out, friends</h3>
+                    <p>Presented to you by <a href="http://joesepi.com">Joe Sepi</a> / <a href="http://twitter.com/joe_sepi">@joe_sepi</a></p>
+
+                    <aside class="notes">
+                        Thank you to CascadiaJS -- this is an awesome event and I am so honored to have been invited and to be sharing the stage with so many great speakers and to be informed by so much great content.<br>
+                        The people running this event are doing a fantastic job. And it has been great meeting fellow attendees as well.<br>
+                        Being a musician, I always thank the sound guy. He is also doing a stellar job. Big kudos all around.
+                    </aside>
+                </section>
+
+                <section>
+                    <h2>I am who I think I am.</h2>
+                    <ul>
+                        <li>VP of Engineering at <a href="http://novus.com">Novus.com</a> where we do financial analysis awesomely</li>
+                        <li>Previously worked at <a href="http://nytimes.com">The New York Times</a> doing dev, dev mgmt and dev relations</li>
+                        <li>I also consider myself something of a <a href="https://www.youtube.com/watch?v=d77ETO7Kbi4">punk</a></li>
+                        <li><a href="http://twitter.com/joe_sepi">@joe_sepi</a> on the twitter machine</li>
+                    </ul>
+
+                    <aside class="notes">
+                        Rather than talking about me for this slide, I'd like to tell you a quick little story.
+                    </aside>
+                </section>
+
+                <section>
+                    <img src="images/Rene-Auberjonois.jpg"/>
+                    <p>Rene Auberjonois</p>
+                </section>
+
+                <section>
+                    <h2>We're all in this together</h2>
+                    <img src="images/beer-1.jpg"/>
+
+                    <aside class="notes">
+                        FE DEP MGMT can be a hotly debated topic<br>
+                        While I've had the pleasure of meeting some of you, I'd like to pretend that we are all buddies for this talk. We occasionally have drinks or coffee together. Maybe you watched my cat while was out of town. Maybe I went to school with your sister, whatever. Let's start with the premise that we are all friends and that we are all in this together. Hot debates lately and in the past as well. I don't want to get all kumbaya on you, but people get excited about this topic<br>
+                        Feel free to tweet at me if you have something to say
+                    </aside>
+                </section>
+
+                <section>
+                    <h2>History</h2>
+                    <p>Dojo, Modules/Transport/C, RunJS, Narwhal, etc...</p>
+                </section>
+
+                <section>
+                    <h2>What are the problems we are trying to solve?</h2>
+                    <img src="images/head-scratcher.jpg"/>
+                    <p>
+
+                        <pre><code data-trim>
+<script src="..."></script><script src="..."></script><script src="..."></script><script src="..."></script>
+MyApp.something.whatever.gone.too.far('fail');
+this must load before that but not before
+                        </code></pre>
+                    </p>
+                    <aside class="notes">
+                        In the old days, not really that long ago<br>
+                        jquery, jqUI, couple plugins (script tags)<br>
+                        your own application code? Common code, specific code...<br>
+                        many script tags >>> many http requests<br>
+                        managing order and dependencies, managing a build process
+                        you probably have a site object that everything is attached to. (yui is good example. speaking of, do you guys remember Yahoo Coctails and Mojito? That looked great until I saw YUI.whatever.)
+                        </ul>
+                    </aside>
+                </section>
+
+                <section>
+                    So those are the problems we are trying to solve, but what are the benefits of solving these problems?
+                    <p class="fragment">performance, stability, sanity, reuse,</p>
+
+                    <aside class="notes">
+                    DOWN
+                    So these are the problems we are trying to solve and solving problems on their own are good<br>
+                    But what are the benefits that we gain from solving these problems
+                        <ul>
+                            <li>Performance: 1 HTTP request (some of the examples we are going to look at are async and would negate this benefit -> build on prod)</li>
+                            <li>Because our dependencies are easily managed, we get the other three</li>
+                        </ul>
+                    </aside>
+                </section>
+
+
+                <section>
+                    <h2>How do we get there?</h2>
+                    <img src="images/hitchhikers.jpg"/>
+                    <p class="fragment">Modules</p>
+                    <p class="fragment">Tooling</p>
+                    <p class="fragment">Bonus: Repository</p>
+                    <aside class="notes">
+                        How do we get there -- essentially, what are the pieces we are looking for in implementing this?
+                        <ul>
+                            <li>F- a module pattern for small decoupled components that can be easily loaded and they can depend on one another and easily export focused functionality</li>
+                            <li>F- a tool to manage the dependency tree of these components</li>
+                            <li>F- Bonus: a repo to pull---and also publish---public (or private) components (talk about public/private mix)</li>
+                        </ul>
+                    </aside>
+                </section>
+
+                <section>
+                    <h2>Please don't skin the cat</h2>
+                    <img src="images/scared-cat.jpg"/>
+                    <aside class="notes">
+                        Although there are many ways to ... achieve this, and some of these ways can be mixed and matched, today we are going to talk about [advance]
+                    </aside>
+                </section>
+
+                <section>
+                    <div style="width:640px;height:422px;margin:0 auto;background:url(images/boxing-ring.gif) no-repeat 0 0">
+                        <div style="text-align:center;padding-top:150px">
+                        AMD, RequireJS, Bower<br>
+                                --<br>
+                        CommonJS, Browserify, NPM<br>
+                        </div>
+                    </div>
+                    <aside class="notes">
+                    these two camps: read slide<br>
+                    point out module, tool, repo<br>
+                    point out that it used to say "vs"
+                    (AsyncModDef)
+                    </aside>
+                </section>
+
+                <section>
+                    How do we use these tools to actually solve this problem?
+                    <aside class="notes">
+                        So again, when the rubber hits the road, how do we see this working out?
+                        <ul>
+                            <li>One entry point</li>
+                            <li>Interdependent modules</li>
+                            <li>Tooling that gathers these dependencies and helps us manage them</li>
+                        </ul>
+                    </aside>
+                </section>
+
+                <section>
+                    <section>
+                        <h2>Require</h2>
+                        <aside class="notes">DOWN
+                            So let's look at a little bit of code, albeit in slides.
+                        </aside>
+                    </section>
+
+                    <section>
+                        <h4>Index.html</h4>
+                        <pre><code data-trim>
+<script data-main="js/main" src="js/require.js"></script>
+                        </code></pre>
+
+                        <h4>main.js</h4>
+                        <pre><code data-trim>
+require(['beep', 'boop'], function(beep, boop) {
+    beep();
+    boop();
+});
+                        </code></pre>
+
+                        <h4>beep.js</h4>
+                        <pre><code data-trim>
+define(['robot'], function(robot) {
+    var speak = function () {
+        robot('beep');
+    };
+    return speak;
+});
+                        </code></pre>
+
+                        <h4>robot.js</h4>
+                        <pre><code data-trim>
+define(function() {
+    return  function (s) {
+        return console.log(s.toUpperCase() + '!');
+    };
+});
+                        </code></pre>
+
+
+                        <aside class="notes">
+                            Start by looking at beep.js<br>
+                            define call; dep array; cb func; NOW talk about those pieces<br>
+                            these dependencies are resolved before the cb func is called<br>
+                            now let's walk through the flow a little<br>
+                            one entry point; Require will go through all of our dependencies and load them. If you look in Network tab, you will see a download for each file. (It is worth noting that in Prod, bundling is best practice and there is a tool built into Require for that.)<br>
+                            [continue walking through this code]
+                        </aside>
+                    </section>
+
+                </section>
+
+                <section>
+                    <section>
+                        <h2>Browserify</h2>
+                        <aside class="notes">DOWN
+                            You may notice that Browserify is very similar in this basic example
+                        </aside>
+                    </section>
+
+                    <section>
+                        <h4>In Terminal</h4>
+                        <pre><code data-trim>
+$ browserify main.js > bundle.js
+                        </code></pre>
+
+                        <h4>Index.html</h4>
+                        <pre><code data-trim>
+<script src="js/bundle.js"></script>
+                        </code></pre>
+
+                        <h4>main.js</h4>
+                        <pre><code data-trim>
+var beep = require('beep');
+var boop = require('boop');
+beep();
+boop();
+                        </code></pre>
+
+                        <h4>beep.js</h4>
+                        <pre><code data-trim>
+var robot = require('robot');
+var speak = function () {
+    robot('beep');
+};
+module.exports = speak;
+                        </code></pre>
+
+                        <h4>robot.js</h4>
+                        <pre><code data-trim>
+module.exports = function (s) {
+    return console.log(s.toUpperCase() + '!');
+};
+                        </code></pre>
+
+
+                        <aside class="notes">
+                            the first thing you may notice is that it is bundled<br>
+                            these requires are syncronoush, but since it is bundled, not much cost<br>
+                            less verbose because we dont have all of the async wrapping<br>
+                            In the commonJS format, you attach your component's functionality to exports (like you see in these examples)<br>
+                            module.exports more than once will overwrite functionality<br>
+                            However, in both commonJS and AMD, you can export your functionality mapped to an object, essentially an api of sorts, let me show you some examples...
+                        </aside>
+                    </section>
+                    <section>
+                        <h4>beep + robot?? - using module.exports object</h4>
+                        <pre><code data-trim>
+var robot = require('robot');
+var speak = function () {
+    robot('beep');
+};
+var dance = function () {
+    $('body').append('<img src="dancing-bender.gif"/>');
+};
+module.exports = {
+    speak : speak,
+    dance : dance
+}
+                        </code></pre>
+                        <aside class="notes">
+                            I am mashing up robot and beep in this example: if you had a speak func and a dance func, you could map to an object<br>
+                            Here is how you can do it in Browserify, but in Require, it would be the same sort of thing, which we'll see in a moment
+                        </aside>
+                    </section>
+                    <section>
+                        <h4>beep + robot?? - using exports.whatevs</h4>
+                        <pre><code data-trim>
+var robot = require('robot');
+exports.speak = function () {
+    robot('beep');
+};
+exports.dance = function () {
+    $('body').append('<img src="dancing-bender.gif"/>');
+};
+                        </code></pre>
+                        <aside class="notes">
+                            But using exports.whatevs may be a better approach
+                        </aside>
+                    </section>
+                    <section>
+                        <h4>beep + robot?? - using Req with Hybrid pattern</h4>
+                        <pre><code data-trim>
+define(function(require, exports, module) {
+    var robot = require('robot');
+    exports.speak = function () {
+        robot('beep');
+    };
+    exports.dance = function () {
+        $('body').append('<img src="dancing-bender.gif"/>');
+    };
+});
+                        </code></pre>
+                        <aside class="notes">
+                            Again, I am mixing beep and robot up here, but I wanted to show how you can do these CommonJS patterns in require (this hybrid pattern)<br>
+                            <ul>
+                                <li>you can omit the dep array, and set up your define callback function passing these arguments (require, exports, module) (order is still important)</li>
+                                <li>this way, you can do direct requires which are still async</li>
+                                <li>you can also use exports.whatever (module.exports works too)</li>
+                            </ul>
+                            Next slide you will see the difference in practical terms
+                        </aside>
+                    </section>
+                    <section>
+                        <h4>Backbone View</h4>
+                        <pre><code data-trim>
+define([
+    'jquery',
+    'underscore',
+    'backbone',
+    'text!templates/example.html'
+], function ($, _, Backbone, exampleTemplate) {
+    var AppView = Backbone.View.extend({
+        el: '#main',
+        template: _.template(exampleTemplate),
+        render: function () {
+            this.$el.html(this.template({}));
+            return this;
+        }
+    });
+
+    return AppView;
+});
+                        </code></pre>
+                        <aside class="notes">
+                        Here is a super simple backbone view example. You can imagine if you had a model or a collection, some utils, ya know, whatever else you may need, this dep array can get ugly and you have to manage the corresponding function arguments. In the words of a good friend -- this is Barfzilla (I tried to find an image of barfzilla but it didn't work out)
+                        </aside>
+                    </section>
+                    <section>
+                        <h4>Backbone View</h4>
+                        <pre><code data-trim>
+define(function (require, exports, module) {
+    var $               = require('jquery');
+    var _               = require('underscore');
+    var Backbone        = require('backbone');
+    var exampleTemplate = require('text!templates/example.html');
+
+    var AppView = Backbone.View.extend({
+        el: '#main',
+        template: _.template(exampleTemplate),
+        render: function () {
+            this.$el.html(this.template({}));
+            return this;
+        }
+    });
+
+    return AppView;
+});
+                        </code></pre>
+                        <aside class="notes">
+                            if you had a ton of dependencies, you could see how this sort of hybrid approach in require would be a better way to go
+                        </aside>
+                    </section>
+                </section>
+
+                <section>
+                    <section>
+                        <h2>Here are the ways in which each approach shines:</h2>
+                        <aside class="notes">
+                        So what we have seen so far, things are fairly similar in simple examples, but here are some ways in which they are different.<br>
+                        DOWN
+                        </aside>
+                    </section>
+                    <section>
+                        <h2>Require Big Win:</h2>
+                        <h4>async module load</h4>
+                        <p class="fragment">dive in quickly</p>
+                        <p class="fragment">debug loaded deps in console</p>
+                        <p class="fragment">dynamically load code</p>
+                        <aside class="notes">
+                            Require's big win is async module loading - which means we can: FRAG
+                            <ul>
+                                <li>dive in quickly -- get up and running by dropping in require and point to data-main and start using modules and dependencies - off to the races</li>
+                                <li>if you are debugging in the browser console and you type require string of module (ex. var robot = require('robot')), you get it if it was pulled in as a dep already</li>
+                                <li>not often a requirement, you could load in code dynamically (Sexton example)</li>
+                            </ul>
+                        </aside>
+                    </section>
+                    <section>
+                        <h2>Browserify Big Win(s):</h2>
+                        <p class="fragment">npm install [module-name] --save</p>
+                        <p class="fragment">server and browser code share</p>
+                        <p class="fragment">through bundling (and transforms) you can do most anything</p>
+                        <aside class="notes">
+                        <ul>
+                            <li>Browserify Big Win(s) are: npm install [module-name] --save : BOOM -- big WIN!<br>
+                            (talk about what happens there)</li>
+                            <li>there is the potential to share code between the server and browser</li>
+                            <li>through bundling (and transforms) you can do most anything</li>
+                        </ul>
+
+                        </aside>
+                    </section>
+                </section>
+
+                <section>
+                    <div style="width:640px;height:422px;margin:0 auto;background:url(images/boxing-ring.gif) no-repeat 0 0">
+                        <div style="text-align:center;padding-top:150px">
+                        AMD, RequireJS, Bower<br>
+                                vs<br>
+                        CommonJS, Browserify, NPM<br>
+                        </div>
+                    </div>
+                    <aside class="notes">
+                        <p>Now, I am avoiding getting into the weeds of this debate, but whether you choose one option or the other, you will probably run into headaches. Require's config, which we haven't talked about at all yet, can be painful as things get complex, especially when you are looking at testing and code coverage. Similarly, if your app gets complex, you will most certainly run up against limitations of Browserify too.</p>
+                        <p>The debate has actually been more about AMD v CJS. And how modules should function in JS. And I think it is healthy in the sense that I hope it is informing the direction of the spec. Speaking of...</p>
+                    </aside>
+                </section>
+
+<!--                 <section>
+                    High level drawbacks:
+                    R:
+                    - config
+                    - verbose code
+                    B:
+                    - always working from bundle
+                    - May run into requirements that are not yet built
+                        - smaller user base (albeit more vocal)
+                        - needs the tires kicked more
+                        - but it is maturing fast!
+                    - biggest gripe is everything is "ify-ed"
+                </section> -->
+
+                <section>
+                    <h2>What about ES6 modules?</h2>
+                    <h4>Will they save us from ourselves <u>and</u> solve world hunger?</h4>
+                    <img src="images/licht.jpg"/>
+                    <p>I'm glad you asked!</p>
+
+                    <aside class="notes">
+                        What about ES6 modules?! I am glad you asked<br>
+                        ES6 modules are currently being designed and they look promising. And as I was saying, I hope that this heated debate is informing that design. And in the end, this debate between these two camps may be moot in due time. And while being able to use them directly may be a ways off, you can start using them today and transpile or convert them to the flavor of your choice. I heard some folks discussing this on shuttle and actually, I'd like to hear more of people's experience doing this.
+                    </aside>
+                </section>
+
+
+                <section>
+                    <h1>In conclusion</h1>
+                    <p>Do what feels right</p>
+                    <p class="fragment">Come talk to me about what you think I missed or am missing</p>
+
+                    <aside class="notes">
+                        And so, in summary and in conclusion and wrapping up, and I am almost done:<br>
+                        Do what is best for your application. requirements; needs; use cases<br>
+                        I am pro-require in that I have a lot of experience with it and can whole heartedly recommend it as a mature way to build applications<br>
+                        AND I am pro-browserify in that I think it has already made great strides and shows a lot of potential while blazing the path toward js full stack in a fully integrated way, code sharing and all that goodness<br>
+                        FRAG > Of course, tweet at me or come talk to me about what you think I missed or am missing, or if you have questions or whatevs
+                    </aside>
+                </section>
+
+                <section>
+                    <h1>THE END</h1>
+                    <p>Presented to you by <a href="http://joesepi.com">Joe Sepi</a> / <a href="http://twitter.com/joe_sepi">@joe_sepi</a></p>
+                    <aside class="notes">
+                        That's all I got, friends! Its been a pleasure. Thank you very much.
+                    </aside>
+                </section>
+
+
+
+            </div>
+
+        </div>
+
+        <script src="lib/js/head.min.js"></script>
+        <script src="js/reveal.min.js"></script>
+
+        <script>
+
+            // Full list of configuration options available here:
+            // https://github.com/hakimel/reveal.js#configuration
+            Reveal.initialize({
+                controls: true,
+                progress: true,
+                history: true,
+                center: true,
+
+                theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
+                transition: Reveal.getQueryHash().transition || 'default', // default/cube/page/concave/zoom/linear/fade/none
+
+                // Optional libraries used to extend on reveal.js
+                dependencies: [
+                    { src: 'lib/js/classList.js', condition: function() { return !document.body.classList; } },
+                    { src: 'plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+                    { src: 'plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+                    { src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+                    { src: 'plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } },
+                    { src: 'plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } }
+                ]
+            });
+
+        </script>
+
+    </body>
+</html>
